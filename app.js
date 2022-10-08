@@ -1,14 +1,18 @@
 const express = require('express');
-const dotenv = require('dotenv')
-dotenv.config();
 
 const app = express();
 
+// set view engine
+app.set('view engine', 'ejs');
+app.use(express.json())
+app.use(express.urlencoded({extended: false}))
 
-app.get('/', function(req,res){
-    res.send('<h1>Test</h1>')
-})
+// serving static contents
+app.use(express.static('public'))
 
-const PORT = process.env.PORT
+// routes
+app.use('/', require('./routes'))
 
-app.listen(PORT, () => console.log(`server running on port ${PORT}`))
+
+module.exports = app;
+
