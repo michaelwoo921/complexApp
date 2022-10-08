@@ -1,9 +1,15 @@
 const User = require('../models/User')
 
+
+
+
+
+// register user
 exports.register = function(req,res){
     const user = new User(req.body);
-    user.register()
-    res.send('register route')
+    user.register(function(result){
+        res.send(result)
+    })
 }
 
 exports.home = function(req,res){
