@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const validator = require('validator')
 const usersCollection = require('../db').db().collection('users')
 
 function User(data){
@@ -34,16 +35,45 @@ User.prototype.register = function(){
             reject(this.errors)
         }
 
-
-
     })
     
 }
 
+User.prototype.login = function(data){
+    return new Promise(async (resolve, reject) => {
+        if(this.data.username ==''){ 
+            this.errors.push('please provide email');
+            reject('please provide email')
+            return;
+        }
+        try{
+            this.cleanUp()
+  
+            // login when user exists then have the same password
+    
+            const attemptedUser = await usersCollection.findOne({username: this.data.username})
+            if(attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)){
+                resolve('successfully login')
+            }else{
+                reject('login failed')
+            }
+        }catch{
+            reject('error')
+        }
+
+    })
+}
+
+
 User.prototype.validate = function(){
     if(this.data.username ==''){this.errors.push('please provide username')}
-    if(this.data.email ==''){this.errors.push('please provide email')}
+    if(!validator.isEmail(this.data.email)){this.errors.push('please provide a valid email')}
+    if(!validator.isAlphanumeric(this.data.username)){ this.errors.push('username must consist of alphanumeric characters')}
     if(this.data.password==''){this.errors.push('please provide password')}
+    if(this.data.username.length<3){ this.errors.push('username must be at least three characters')}
+    if(this.data.username.length>30){ this.errors.push('username cannot be more than 30 characters')}  
+    if(this.data.password.length<8){ this.errors.push('password must be at least 8 characters')}
+    if(this.data.password.length>50){ this.errors.push('password cannot exceed 50 characters')}  
 }
 
 User.prototype.cleanUp = function(){

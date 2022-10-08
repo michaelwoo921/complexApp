@@ -12,6 +12,11 @@ exports.register = function(req,res){
     })
 }
 
+exports.login = function(req,res){
+    const user = new User(req.body);
+    user.login().then(function(){ res.send('success') }).catch(function(errors){ res.send(errors)})
+}
+
 exports.home = function(req,res){
     res.render('home-guest')
 }
