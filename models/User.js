@@ -9,23 +9,34 @@ function User(data){
 
 
 // register user
-User.prototype.register = function(callback){
-    // clean data
-    this.cleanUp()
+User.prototype.register = function(){
+    return new Promise(async (resolve, reject) => {
 
-    // validate data
-    this.validate()
+        try{
+            // clean data
+            this.cleanUp()
 
-    if(this.errors.length){
-        callback(this.errors)
-        return;
-    }
+            // validate data
+            this.validate()
 
-    // if no errors then save to database after encrypting password
-    // const salt = bcrypt.genSaltSync(10)
-    // this.data.password = bcrypt.hashSync(this.data.password, salt)
-    // usersCollection.insertOne(this.data)
-    callback('successfully registered user')
+            if(this.errors.length){
+                reject(this.errors)
+                return;
+            }
+            // if no errors then save to database after encrypting password
+            const salt = bcrypt.genSaltSync(10)
+            this.data.password = bcrypt.hashSync(this.data.password, salt)
+            await usersCollection.insertOne(this.data)
+            resolve()
+
+        }catch{
+            this.errors.push('try again later')
+            reject(this.errors)
+        }
+
+
+
+    })
     
 }
 

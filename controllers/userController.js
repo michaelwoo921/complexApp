@@ -7,8 +7,8 @@ const User = require('../models/User')
 // register user
 exports.register = function(req,res){
     const user = new User(req.body);
-    user.register(function(result){
-        res.send(result)
+    user.register().then(() => res.send('success')).catch(function(errors){
+        res.send(errors)
     })
 }
 
