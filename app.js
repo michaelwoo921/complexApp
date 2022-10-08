@@ -23,6 +23,14 @@ app.use(session({
 }))
 app.use(flash())
 
+// access session data from the template
+app.use(function(req,res, next){
+    res.locals.user = req.session.user;
+    res.locals.errors = req.flash("errors")
+    res.locals.success = req.flash("success")
+    next()
+})
+
 // serving static contents
 app.use(express.static('public'))
 
