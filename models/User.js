@@ -18,7 +18,7 @@ User.prototype.register = function(){
             this.cleanUp()
 
             // validate data
-            this.validate()
+            await this.validate()
 
             if(this.errors.length){
                 reject(this.errors)
@@ -41,31 +41,29 @@ User.prototype.register = function(){
 
 User.prototype.login = function(data){
     return new Promise(async (resolve, reject) => {
-        if(this.data.username ==''){ 
-            this.errors.push('please provide email');
-            reject('please provide email')
-            return;
-        }
         try{
             this.cleanUp()
-  
             // login when user exists then have the same password
-    
+            if(!this.data.username){
+                reject('please provide username')
+            }
             const attemptedUser = await usersCollection.findOne({username: this.data.username})
             if(attemptedUser && bcrypt.compareSync(this.data.password, attemptedUser.password)){
-                resolve('successfully login')
+                this.data = attemptedUser;
+                console.log(this.data)
+                resolve('success')
             }else{
-                reject('login failed')
+                reject('invalid credential')
             }
         }catch{
-            reject('error')
+            reject('server error. try again later')
         }
 
     })
 }
 
 
-User.prototype.validate = function(){
+User.prototype.validate = async function(){
     if(this.data.username ==''){this.errors.push('please provide username')}
     if(!validator.isEmail(this.data.email)){this.errors.push('please provide a valid email')}
     if(!validator.isAlphanumeric(this.data.username)){ this.errors.push('username must consist of alphanumeric characters')}
@@ -74,6 +72,21 @@ User.prototype.validate = function(){
     if(this.data.username.length>30){ this.errors.push('username cannot be more than 30 characters')}  
     if(this.data.password.length<8){ this.errors.push('password must be at least 8 characters')}
     if(this.data.password.length>50){ this.errors.push('password cannot exceed 50 characters')}  
+
+    // check whether useename is taken, whether email is taken 
+   
+        let user = await usersCollection.findOne({username: this.data.username});
+        if(user){
+            this.errors.push('username is already taken')
+        }
+        user = await usersCollection.findOne({email: this.data.email})
+        if(user){
+            this.errors.push('email is already taken')
+        }
+        
+
+    
+    
 }
 
 User.prototype.cleanUp = function(){

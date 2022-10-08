@@ -21,9 +21,12 @@
   "homepage": "https://github.com/michaelwoo921/complexApp#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^4.6.0",
     "dotenv": "^16.0.3",
     "ejs": "^3.1.8",
     "express": "^4.18.1",
+    "express-session": "^1.17.3",
     "mongodb": "^4.10.0",
     "validator": "^13.7.0"
   },
