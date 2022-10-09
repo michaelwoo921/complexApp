@@ -23,12 +23,41 @@ exports.create = function(req,res){
 exports.viewSingle = async function(req,res){
 
     try{
-        throw Error()
-        // get a single post by id  (/post/:id) -> title, body, createdDate, author (objectid)
-        // const post = await Post.findSingleById()
-        res.render('single-post-screen')
+        const post = await Post.findSingleById(req.params.id, req.visitorId)
+        console.log(post)
+        res.render('single-post-screen',{post} )
     }catch{
         res.render('404')
     }
 
 }
+
+exports.viewEditScreen = async function(req,res){
+
+    try{
+        const post = await Post.findSingleById(req.params.id, req.visitorId)
+        console.log(post)
+        if(post.isVisitorOwner){
+            
+            res.render('edit-post', {post})
+        }else{
+            req.flash('errors', 'You do not have permission to perform that action')
+            req.session.save(() => {
+                res.redirect(`/post/${post._id}`)
+            })
+        }
+ 
+    }catch{
+        res.render('404')
+    }
+}
+
+exports.edit = function(req,res){
+    res.send('view edit')
+}
+
+exports.delete = function(req,res){
+    res.send('delete')
+}
+
+
