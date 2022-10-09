@@ -71,25 +71,26 @@ User.prototype.validate = async function(){
     if(!validator.isEmail(this.data.email)){this.errors.push('please provide a valid email')}
     if(!validator.isAlphanumeric(this.data.username)){ this.errors.push('username must consist of alphanumeric characters')}
     if(this.data.password==''){this.errors.push('please provide password')}
-    if(this.data.username.length<3){ this.errors.push('username must be at least three characters')}
+    if(this.data.username.length>0 && this.data.username.length<3){ this.errors.push('username must be at least three characters')}
     if(this.data.username.length>30){ this.errors.push('username cannot be more than 30 characters')}  
-    if(this.data.password.length<8){ this.errors.push('password must be at least 8 characters')}
+    if(this.data.password.length >0 && this.data.password.length<8){ this.errors.push('password must be at least 8 characters')}
     if(this.data.password.length>50){ this.errors.push('password cannot exceed 50 characters')}  
 
     // check whether useename is taken, whether email is taken 
    
-        let user = await usersCollection.findOne({username: this.data.username});
-        if(user){
-            this.errors.push('username is already taken')
+    if(this.data.username.length > 2 && this.data.username.length <31 && validator.isAlphanumeric(this.data.username)){
+        let usernameExists = await usersCollection.findOne({username: this.data.username});
+        if(usernameExists){
+            this.errors.push('this username is already taken')
         }
-        user = await usersCollection.findOne({email: this.data.email})
-        if(user){
-            this.errors.push('email is already taken')
-        }
-        
+    }
 
-    
-    
+    if(validator.isEmail(this.data.email)){
+        let emailExists = await usersCollection.findOne({email: this.data.email})
+        if(emailExists){
+            this.errors.push('this email is already taken')
+        }
+    }
 }
 
 User.prototype.cleanUp = function(){

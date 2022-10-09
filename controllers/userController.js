@@ -8,25 +8,23 @@ const User = require('../models/User')
 exports.register = function(req,res){
     const user = new User(req.body, true);
     user.register().then(() => {
-        req.session.user = {username: user.username, avatar: user.avatar}
+        req.session.user = {username: user.data.username, avatar: user.avatar, _id: user.data._id}
         req.flash('success','successfully registered')
         req.session.save(function(){res.redirect('/')})
-    }).catch(function(errors){
+    }).catch(function(regErrors){
         
-        errors.forEach(error => req.flash('regErrors', error))
+        regErrors.forEach(error => req.flash('regErrors', error))
         req.session.save(function(){
             
             res.redirect('/')
         })
-        
     })
 }
 
 exports.login = function(req,res){
     const user = new User(req.body);
     user.login().then(function(){ 
-        req.session.user ={ username: user.data.username, avatar: user.avatar}
-        console.log(user)
+        req.session.user ={ username: user.data.username, avatar: user.avatar, _id: user.data._id}
         req.flash('success', 'logged in successfully')
         req.session.save(function(){
             res.redirect('/')
@@ -52,4 +50,14 @@ exports.home = function(req,res){
         res.render('home-guest', {regErrors: req.flash('regErrors')})
     }
     
+}
+
+
+exports.mustBeLoggedIn = function(req,res,next){
+    if(req.session.user){
+        next()
+    } else {
+        req.flash('errors', 'You must be logged in to perform that action')
+        req.session.save(() => res.redirect('/'))
+    }
 }
